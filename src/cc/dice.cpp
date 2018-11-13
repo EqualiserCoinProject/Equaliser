@@ -279,7 +279,7 @@ uint64_t DiceCalc(int64_t bet,int64_t odds,int64_t minbet,int64_t maxbet,int64_t
                 break;
             }
         }
-        fprintf(stderr,"modval %d vs %d\n",modval,(int32_t)(10000/(odds+1)));
+        //fprintf(stderr,"modval %d vs %d\n",modval,(int32_t)(10000/(odds+1)));
         if ( modval < 10000/(odds+1) )
             winnings = bet * (odds+1);
     }
@@ -604,6 +604,10 @@ bool DiceValidate(struct CCcontract_info *cp,Eval *eval,const CTransaction &tx)
                     }
                     else if ( DiceVerifyTimeout(vinTx,timeoutblocks) == 0 )
                         return eval->Invalid("invalid timeout claim for timeout");
+                    break;
+                default:
+                    fprintf(stderr,"illegal dice funcid.(%c)\n",funcid);
+                    return eval->Invalid("unexpected dice funcid");
                     break;
             }
         }
