@@ -112,7 +112,7 @@ int32_t komodo_parsestatefile(struct komodo_state *sp,FILE *fp,char *symbol,char
                     errs++;
                 if ( fread(&MoMdepth,1,sizeof(MoMdepth),fp) != sizeof(MoMdepth) )
                     errs++;
-                if ( 1 && ASSETCHAINS_SYMBOL[0] != 0 && sp != 0 )
+                if ( 0 && ASSETCHAINS_SYMBOL[0] != 0 && sp != 0 )
                     printf("%s load[%s.%d -> %s] NOTARIZED %d %s MoM.%s %d CCid.%u\n",ASSETCHAINS_SYMBOL,symbol,sp->NUM_NPOINTS,dest,notarized_height,notarized_hash.ToString().c_str(),MoM.ToString().c_str(),MoMdepth&0xffff,(MoMdepth>>16)&0xffff);
             }
             else
@@ -158,7 +158,7 @@ int32_t komodo_parsestatefile(struct komodo_state *sp,FILE *fp,char *symbol,char
         }
         else if ( func == 'R' )
         {
-            uint16_t olen,v; uint64_t ovalue; uint256 txid; uint8_t opret[16384];
+            uint16_t olen,v; uint64_t ovalue; uint256 txid; uint8_t opret[16384*4];
             if ( fread(&txid,1,sizeof(txid),fp) != sizeof(txid) )
                 errs++;
             if ( fread(&v,1,sizeof(v),fp) != sizeof(v) )
@@ -257,7 +257,7 @@ int32_t komodo_parsestatefiledata(struct komodo_state *sp,uint8_t *filedata,long
                     errs++;
                 if ( memread(&MoMdepth,sizeof(MoMdepth),filedata,&fpos,datalen) != sizeof(MoMdepth) )
                     errs++;
-                if ( 1 && ASSETCHAINS_SYMBOL[0] != 0 && sp != 0 )
+                if ( 0 && ASSETCHAINS_SYMBOL[0] != 0 && sp != 0 )
                     printf("%s load[%s.%d -> %s] NOTARIZED %d %s MoM.%s %d CCid.%u\n",ASSETCHAINS_SYMBOL,symbol,sp->NUM_NPOINTS,dest,notarized_height,notarized_hash.ToString().c_str(),MoM.ToString().c_str(),MoMdepth&0xffff,(MoMdepth>>16)&0xffff);
             }
             else
@@ -298,7 +298,7 @@ int32_t komodo_parsestatefiledata(struct komodo_state *sp,uint8_t *filedata,long
         }
         else if ( func == 'R' )
         {
-            uint16_t olen,v; uint64_t ovalue; uint256 txid; uint8_t opret[16384];
+            uint16_t olen,v; uint64_t ovalue; uint256 txid; uint8_t opret[16384*4];
             if ( memread(&txid,sizeof(txid),filedata,&fpos,datalen) != sizeof(txid) )
                 errs++;
             if ( memread(&v,sizeof(v),filedata,&fpos,datalen) != sizeof(v) )
@@ -851,7 +851,7 @@ void komodo_connectblock(CBlockIndex *pindex,CBlock& block)
                             printf("%02x",scriptPubKey[k]);
                         printf(" scriptPubKey doesnt match any notary vini.%d of %d\n",j,numvins);
                     }
-                } else printf("cant get scriptPubKey for ht.%d txi.%d vin.%d\n",height,i,j);
+                } //else printf("cant get scriptPubKey for ht.%d txi.%d vin.%d\n",height,i,j);
             }
             numvalid = bitweight(signedmask);
             if ( (((height < 90000 || (signedmask & 1) != 0) && numvalid >= KOMODO_MINRATIFY) ||

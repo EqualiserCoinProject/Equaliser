@@ -73,8 +73,10 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, vector<vector<unsi
 
     if (IsCryptoConditionsEnabled()) {
         // Shortcut for pay-to-crypto-condition
-        if (scriptPubKey.IsPayToCryptoCondition()) {
-            if (scriptPubKey.MayAcceptCryptoCondition()) {
+        if (scriptPubKey.IsPayToCryptoCondition())
+        {
+            if (scriptPubKey.MayAcceptCryptoCondition())
+            {
                 typeRet = TX_CRYPTOCONDITION;
                 vector<unsigned char> hashBytes; uint160 x; int32_t i; uint8_t hash20[20],*ptr;;
                 x = Hash160(scriptPubKey);
@@ -244,7 +246,7 @@ bool ExtractDestination(const CScript& scriptPubKey, CTxDestination& addressRet)
         CPubKey pubKey(vSolutions[0]);
         if (!pubKey.IsValid())
         {
-            fprintf(stderr,"TX_PUBKEY invalid pubkey\n");
+            //fprintf(stderr,"TX_PUBKEY invalid pubkey\n");
             return false;
         }
 

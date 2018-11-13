@@ -66,8 +66,6 @@
  
  */
 
-extern std::string CCerror;
-
 int64_t RewardsCalc(int64_t amount,uint256 txid,uint64_t APR,uint64_t minseconds,uint64_t maxseconds,uint64_t mindeposit)
 {
     int32_t numblocks; uint64_t duration,reward = 0;
@@ -244,8 +242,6 @@ bool RewardsValidate(struct CCcontract_info *cp,Eval* eval,const CTransaction &t
                     //vout.0: funding CC change or recover normal payout
                     //vout.1: normal output to unlock address
                     //vout.n-1: opreturn 'U' sbits fundingtxid
-                    //char str[65],str2[65];
-                    //fprintf(stderr,"funding.%s vs %s\n",uint256_str(str,fundingtxid),uint256_str(str2,tx.vin[0].prevout.hash));
                     if ( fundingtxid == tx.vin[0].prevout.hash )
                         return eval->Invalid("cant unlock fundingtxid");
                     else if ( eval->GetTxUnconfirmed(tx.vin[0].prevout.hash,vinTx,hashBlock) == 0 )
@@ -291,14 +287,18 @@ bool RewardsValidate(struct CCcontract_info *cp,Eval* eval,const CTransaction &t
                         return eval->Invalid("unlock tx vout.2 isnt 0");
                     preventCCvouts = 1;
                     break;
+                default:
+                    fprintf(stderr,"illegal rewards funcid.(%c)\n",funcid);
+                    return eval->Invalid("unexpected rewards funcid");
+                    break;
             }
-        }
+        } else return eval->Invalid("unexpected rewards missing funcid");
         return(PreventCC(eval,tx,preventCCvins,numvins,preventCCvouts,numvouts));
     }
     return(true);
 }
 
-uint64_t myIs_unlockedtx_inmempool(uint256 &txid,int32_t &vout,uint64_t refsbits,uint256 reffundingtxid,uint64_t needed)
+static uint64_t myIs_unlockedtx_inmempool(uint256 &txid,int32_t &vout,uint64_t refsbits,uint256 reffundingtxid,uint64_t needed)
 {
     uint8_t funcid; uint64_t sbits,nValue; uint256 fundingtxid; char str[65];
     memset(&txid,0,sizeof(txid));
@@ -329,15 +329,16 @@ uint64_t myIs_unlockedtx_inmempool(uint256 &txid,int32_t &vout,uint64_t refsbits
 // 'L' vs 'F' and 'A'
 int64_t AddRewardsInputs(CScript &scriptPubKey,uint64_t maxseconds,struct CCcontract_info *cp,CMutableTransaction &mtx,CPubKey pk,int64_t total,int32_t maxinputs,uint64_t refsbits,uint256 reffundingtxid)
 {
-    char coinaddr[64],str[65]; uint64_t sbits,nValue,totalinputs = 0; uint256 txid,hashBlock,fundingtxid; CTransaction tx; int32_t numblocks,j,vout,n = 0; uint8_t funcid;
+    char coinaddr[64],str[65]; uint64_t threshold,sbits,nValue,totalinputs = 0; uint256 txid,hashBlock,fundingtxid; CTransaction tx; int32_t numblocks,j,vout,n = 0; uint8_t funcid;
     std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> > unspentOutputs;
     GetCCaddress(cp,coinaddr,pk);
     SetCCunspents(unspentOutputs,coinaddr);
+    threshold = total/maxinputs;
     for (std::vector<std::pair<CAddressUnspentKey, CAddressUnspentValue> >::const_iterator it=unspentOutputs.begin(); it!=unspentOutputs.end(); it++)
     {
         txid = it->first.txhash;
         vout = (int32_t)it->first.index;
-        if ( it->second.satoshis < 1000000 )
+        if ( it->second.satoshis < threshold )
             continue;
         //fprintf(stderr,"(%s) %s/v%d %.8f\n",coinaddr,uint256_str(str,txid),vout,(double)it->second.satoshis/COIN);
         for (j=0; j<mtx.vin.size(); j++)
